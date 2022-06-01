@@ -1,0 +1,89 @@
+= Collectd plugin for OpenRC
+:proj-name: collectd-openrc
+:version: 0.0.0
+:gh-name: jirutka/{proj-name}
+:collectd-url: https://collectd.org
+:json-c-url: https://github.com/json-c/json-c
+:openrc-url: https://github.com/OpenRC/openrc
+
+A {collectd-url}[collectd] plugin that collects information about {openrc-url}[OpenRC] services.
+
+
+== Usage
+
+[source]
+----
+LoadPlugin openrc
+----
+
+
+== Metrics
+
+This section describes exposed metrics (values).
+
+
+=== openrc.services-__<state>__
+
+Services in state _<state>_:
+
+* started -- started services regardless of the runlevel (i.e. includes even manually started and hot-plugged services)
+* crashed -- crashed (unsupervised) and failed (supervised) services regardless of the runlevel
+* stopped -- stopped services that are in any runlevel other than `shutdown`
+
+The value of the metric is the number of services, the metadata contains a list of them.
+The states are mutually exclusive, i.e. one service can be in one or no state.
+
+* *type*: GAUGE (min: 0, max: inf.)
+* *metadata*:
+** *services* (string) -- a JSON array of objects with the following keys:
+*** `n` (string): service name
+
+
+== Requirements
+
+.*Runtime*:
+* {collectd-url}[collectd] 5.12+
+* {openrc-url}[librc]
+* {json-c-url}[libjson-c]
+
+.*Build*:
+* C compiler and linker supporting at least C11 (tested with gcc)
+* pkg-config
+* GNU Make
+* {openrc-url}[OpenRC] development files
+* {json-c-url}[json-c] development files
+* {collectd-url}[collectd] development files
+
+The header files needed to build collectd plugins are usually not included in the distribution packages.
+Exceptions are _collectd-dev_ packages in Alpine Linux (since v3.16) and Debian – the core headers are installed in `/usr/include/collectd/core`.
+If you don’t have `/usr/include/collectd/core/daemon/plugin.h`, download the collectd source package from https://collectd.org/download.shtml#source[collectd.org].
+Then build this plugin with variable `COLLECTD_INCLUDE_DIR` pointing to the unpacked `src/` directory: `make build COLLECTD_INCLUDE_DIR=/path/to/src`.
+
+
+== Installation
+
+=== On Alpine Linux
+
+Install package collectd-openrc-plugin from the Alpine’s Edge testing repository:
+
+[source, sh]
+apk add collectd-openrc-plugin
+
+
+=== From Source Tarball
+
+[source, sh, subs="+attributes"]
+----
+wget https://github.com/{gh-name}/archive/v{version}/{proj-name}-{version}.tar.gz
+tar -xzf {proj-name}-{version}.tar.gz
+cd {proj-name}-{version}
+
+make build
+make install DESTDIR=/ prefix=/usr
+----
+
+
+== License
+
+This project is licensed under https://opensource.org/licenses/GPL-2.0[GPL-2.0-or-later].
+For the full text of the license, see the link:LICENSE[LICENSE] file.
