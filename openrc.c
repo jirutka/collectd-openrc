@@ -14,7 +14,7 @@
 #define PLUGIN_NAME "openrc"
 
 #ifndef PLUGIN_VERSION
-  #define PLUGIN_VERSION "0.0.0"
+  #define PLUGIN_VERSION "0.1.0"
 #endif
 
 #define TRUE 1

@@ -1,6 +1,6 @@
 = Collectd plugin for OpenRC
 :proj-name: collectd-openrc
-:version: 0.0.0
+:version: 0.1.0
 :gh-name: jirutka/{proj-name}
 :collectd-url: https://collectd.org
 :json-c-url: https://github.com/json-c/json-c
