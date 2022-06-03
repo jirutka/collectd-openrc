@@ -257,6 +257,7 @@ done:
 	return rc;
 }
 
+// cppcheck-suppress unusedFunction
 void module_register (void) {
 	INFO("registering plugin " PLUGIN_NAME " " PLUGIN_VERSION);
 
