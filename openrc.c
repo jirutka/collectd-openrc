@@ -165,7 +165,7 @@ static bool is_service_in_any_runlevel (const char *service, const RC_STRINGLIST
 	return false;
 }
 
-static json_object *collect_services_status () {
+static json_object *collect_services_status (void) {
 	json_object *data = json_object_new_object();
 
 	json_object *started = json_object_new_array();
