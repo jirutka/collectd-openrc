@@ -114,7 +114,7 @@ static int service_daemons_crashed (const char *service) {
 	// `service_set_value`), there's nothing we can do.
 
 	if ((pidfile = rc_service_value_get(service, "pidfile")) == NULL) {
-		log_debug("service '%s' has no pidfile option defined");
+		log_debug("service '%s' has no pidfile option defined", service);
 		status = TRUE;
 		goto done;
 	}
