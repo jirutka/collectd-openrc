@@ -6,6 +6,7 @@
 #include <math.h>
 #include <stddef.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 
 #include <json.h>  // json-c
@@ -24,10 +25,10 @@
 
 #define LOG_PREFIX PLUGIN_NAME " plugin: "
 
-#define log_debug(...) DEBUG(LOG_PREFIX __VA_ARGS__)
-#define log_info(...) INFO(LOG_PREFIX __VA_ARGS__)
-#define log_notice(...) NOTICE(LOG_PREFIX __VA_ARGS__)
-#define log_err(...) ERROR(LOG_PREFIX __VA_ARGS__)
+#ifndef STATIC_ARRAY_SIZE
+  // Copied from src/utils/common/common.h in colllectd.
+  #define STATIC_ARRAY_SIZE(a) (sizeof(a) / sizeof(*(a)))
+#endif
 
 // Based on src/shared/queue.h in OpenRC.
 #define	tailq_foreach(var, head) \
@@ -35,6 +36,24 @@
 	     (var) != NULL; \
 	     (var) = ((var)->entries.tqe_next))
 
+// LOG_DEBUG only works if collectd was compiled with --enable-debug (disabled
+// by default), which makes it quite useless. The first usable log level is
+// LOG_INFO, which is however enabled by default for logging into syslog and
+// file. For this reason, this plugin allows to override the logging level for
+// itself using the plugin parameter "LogLevel" and sets it to LOG_NOTICE by
+// default.
+#define openrc_plugin_log(level, ...) \
+	if (level <= log_level) { plugin_log(level, LOG_PREFIX __VA_ARGS__); }
+
+#define log_info(...) openrc_plugin_log(LOG_INFO, __VA_ARGS__)
+#define log_notice(...) openrc_plugin_log(LOG_NOTICE, __VA_ARGS__)
+#define log_warn(...) openrc_plugin_log(LOG_WARNING, __VA_ARGS__)
+#define log_err(...) openrc_plugin_log(LOG_ERR, __VA_ARGS__)
+
+
+static const char *config_keys[] = {
+	"LogLevel",  // the logging level for this plugin
+};
 
 static data_set_t services_ds = {
 	.type = "services",
@@ -46,6 +65,8 @@ static data_set_t services_ds = {
 	},
 	.ds_num = 1,
 };
+
+static int log_level = LOG_NOTICE;
 
 static int dispatch_gauge (const char *type, const char *type_instance,
                            const gauge_t value, meta_data_t *meta) {
@@ -114,7 +135,7 @@ static int service_daemons_crashed (const char *service) {
 	// `service_set_value`), there's nothing we can do.
 
 	if ((pidfile = rc_service_value_get(service, "pidfile")) == NULL) {
-		log_debug("service '%s' has no pidfile option defined", service);
+		log_info("service '%s' has no pidfile option defined", service);
 		status = TRUE;
 		goto done;
 	}
@@ -137,7 +158,7 @@ static int service_daemons_crashed (const char *service) {
 	}
 
 	if ((pids = rc_find_pids(command, NULL, 0, 0)) == NULL) {
-		log_debug("unable to read pidfile '%s' and no process with exec '%s' found",
+		log_info("unable to read pidfile '%s' and no process with exec '%s' found",
 		          pidfile, command);
 		status = TRUE;
 		goto done;
@@ -259,10 +280,23 @@ done:
 	return rc;
 }
 
+static int openrc_config (const char *key, const char *value) {
+	if (strcasecmp(key, "LogLevel") == 0) {
+		log_level = parse_log_severity(value);
+		if (log_level < 0) {
+			log_level = LOG_NOTICE;
+			log_warn("invalid LogLevel '%s', defaulting to 'notice'", value);
+		}
+	}
+	return 0;
+}
+
 // cppcheck-suppress unusedFunction
 void module_register (void) {
 	INFO("registering plugin " PLUGIN_NAME " " PLUGIN_VERSION);
 
+	plugin_register_config(PLUGIN_NAME, openrc_config, config_keys,
+	                       STATIC_ARRAY_SIZE(config_keys));
 	plugin_register_data_set(&services_ds);
 	plugin_register_read(PLUGIN_NAME, openrc_read);
 }

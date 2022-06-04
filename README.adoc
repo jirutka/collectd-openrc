@@ -14,7 +14,21 @@ A {collectd-url}[collectd] plugin that collects information about {openrc-url}[O
 [source]
 ----
 LoadPlugin openrc
+
+<Plugin openrc>
+  LogLevel notice
+</Plugin>
 ----
+
+=== Parameters
+
+LogLevel::
+Sets the logging level for this plugin.
+If, for example, set to `notice`, then all messages with severity `notice`, `warning`, or `err` will be passed to the collectd logger. +
+Since the debug level is no-op in collectd, unless it was compiled with `--enable-debug`, this plugin uses the info level for debug messages.
++
+Allowed values: `info` | `notice` | `warning` | `err` +
+Default: `notice`
 
 
 == Metrics
