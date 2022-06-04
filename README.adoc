@@ -1,6 +1,6 @@
 = Collectd plugin for OpenRC
 :proj-name: collectd-openrc
-:version: 0.1.0
+:version: 0.2.0
 :gh-name: jirutka/{proj-name}
 :alpine-pkgs-url: https://pkgs.alpinelinux.org/packages
 :collectd-url: https://collectd.org
