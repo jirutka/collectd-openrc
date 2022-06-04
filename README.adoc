@@ -2,6 +2,7 @@
 :proj-name: collectd-openrc
 :version: 0.1.0
 :gh-name: jirutka/{proj-name}
+:alpine-pkgs-url: https://pkgs.alpinelinux.org/packages
 :collectd-url: https://collectd.org
 :json-c-url: https://github.com/json-c/json-c
 :openrc-url: https://github.com/OpenRC/openrc
@@ -77,11 +78,12 @@ Then build this plugin with variable `COLLECTD_INCLUDE_DIR` pointing to the unpa
 == Installation
 
 === On Alpine Linux
+:pkg-name: collectd-openrc-plugin
 
-Install package collectd-openrc-plugin from the Alpine’s Edge testing repository:
+Install package {alpine-pkgs-url}?name={pkg-name}[{pkg-name}] from the Alpine’s Edge testing repository:
 
-[source, sh]
-apk add collectd-openrc-plugin
+[source, sh, subs="+attributes"]
+apk add {pkg-name}
 
 
 === From Source Tarball
