@@ -243,6 +243,7 @@ static int openrc_read (void) {
 		meta_data_t *meta = meta_data_create();
 		if (meta_data_add_string(meta, "services", services) < 0) {
 			log_err("unable to set value metadata");
+			meta_data_destroy(meta);
 			goto error;
 		}
 
