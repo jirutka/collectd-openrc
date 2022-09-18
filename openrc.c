@@ -120,7 +120,7 @@ static int service_daemons_crashed (const char *service) {
 		status = FALSE;
 		goto done;
 	}
-	if (errno != EACCES) {
+	if (errno != EACCES && errno != ESRCH) {
 		log_err("unable to check status of service '%s': %s", service, strerror(errno));
 		status = ERR;
 		goto done;
